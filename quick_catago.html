@@ -1,0 +1,897 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/fontAwesome.css">
+    <link rel="stylesheet" href="css/hero-slider.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/tooplate-style.css">
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.0.0/mapbox-gl.css' rel='stylesheet' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.0.0/mapbox-gl.js'></script>
+    <script type="text/javascript" src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <style>
+        .weather img{margin-top: -100px}
+        .dropbtn {
+            /*color: white;*/
+            padding: 16px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            opacity:1;
+        }
+        .dropbtn:hover, .dropbtn:focus {
+            /*background-color: #3e8e41;*/
+        }
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 172px;
+            overflow: auto;
+            box-shadow: 0px 8px 16px 0px rgba(255, 255, 255, 0.99);
+            z-index: 1;
+        }
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+        .dropdown a:hover {background-color: #ffffff
+        }
+    </style>
+    <title>Data visualization--快速制图</title>
+</head>
+<body>
+<!--<div>-->
+<div style="z-index: 1;position:relative" >
+    <ul class="nav nav-tabs">
+        <li><a href="GIS_index.html"><button class="btn btn-default">主页</button></a></li>
+        <div class="dropdown">
+            <li><input type="button"  class="dropbtn" onclick="myFunction2()" value="地震数据可视化"></li>
+            <div id="myDropdown1" class="dropdown-content">
+                <a href="https://emiliendupont.github.io/earthquake-3d-globe/"><button class="btn btn-default">earthquake in 2017 year--3D世界</button></a>
+                <a href="Two_mapboxmap.html"><button class="btn btn-default">中国地震动峰值加速度区划图</button></a>
+                <a href="mapbox_heat_china_2012-2016.html"><button class="btn btn-default">2012-2019年中国地震分布热力图</button></a>
+                <a href="Two_mapbox2.html"><button class="btn btn-default">2012-2019年中国地震分布热力图与中国地震动峰值加速度区划图</button></a>
+                <a href="Two_mapbox3.html"><button class="btn btn-default">2012-2019年中国地震分布热力图--M6/Count</button></a>
+
+                <!--<a onclick="area()">第二次土地调查耕地面积</a>-->
+                <!--<a onclick="peo_GDP()">2018年中国各省GDP增长情况</a>-->
+            </div>
+        </div>
+        <!--<li><a href="Two_mapboxmap.html"><button class="btn btn-default">Swping between maps&#45;&#45;中国地震动峰值加速度区划图</button></a></li>-->
+        <li><div class="field">
+            <a><button  onclick="a()" class="btn btn-default">选择字段:</button></a>
+            <a><select id="layer">
+                <option >请选择</option>
+                <option value="anhui">安徽省</option>
+                <option value="jiangsu">江苏省</option>
+                <option value="yunnan">云南省</option>
+                <option value="sichuan">四川省</option>
+                <option value="qinghai">青海省</option>
+                <option value="xizangzizhiqu">西藏自治区</option>
+                <option value="xinjiangweiwuerzizhiqu">新疆维吾尔自治区</option>
+                <option value="gansu">甘肃省</option>
+                <option value="ningxiahuizuzizhiqu">宁夏回族自治区</option>
+                <option value="shanxi1">山西省</option>
+                <option value="tianjin">天津市</option>
+                <option value="hebei">河北省</option>
+                <option value="beijing">北京市</option>
+                <option value="neimengguzizhiqu">内蒙古自治区</option>
+                <option value="heilongjiang">黑龙江省</option>
+                <option value="jilin">吉林省</option>
+                <option value="liaoning">辽宁省</option>
+                <option value="taiwan">台湾省</option>
+                <option value="zhejiang">浙江省</option>
+                <option value="shanghai">上海市</option>
+                <option value="shandong">山东省</option>
+                <option value="hubei">湖北省</option>
+                <option value="henan">河南省</option>
+                <option value="shanxi">陕西省</option>
+                <option value="chongqing">重庆市</option>
+                <option value="hunan">湖南省</option>
+                <option value="guizhou">贵州省</option>
+                <option value="guangxizhuangzuzizhiqu">广西壮族自治区</option>
+                <option value="guangdong">广东省</option>
+                <option value="xianggangtebiexingzhengqu">香港特别行政区</option>
+                <option value="jiangxi">江西省</option>
+                <option value="fujian">福建省</option>
+                <option value="hainan">海南省</option>
+            </select></a>
+        </div></li>
+        <li><a>面填充颜色：<input type="color" id="pd_FillColor" value="#FFF"/></a></li>
+        <li><a>透明度:<input type="text" placeholder="0-1" id="pd_dtransparency"></a></li>
+        <li><a><input type="button" class="btn btn-default" value="更改图层风格" id = "pd_dSurePolygon" onclick="SubmitPolygon()"></a></li>
+        <li><a><button id="fly" class="btn btn-default">飞行模式</button></a></li>
+        <div class="dropdown">
+            <li><input type="button"  class="dropbtn" onclick="myFunction()" value="专题图制作"></li>
+            <div id="myDropdown" class="dropdown-content">
+                <a onclick="population()">2017年中国人口分布情况</a>
+                <a onclick="GDP()">2017年中国各省GDP情况</a>
+                <a onclick="area()">第二次土地调查耕地面积</a>
+                <a onclick="peo_GDP()">2018年中国各省GDP增长情况</a>
+            </div>
+        </div>
+    </ul>
+</div>
+<div id='map'></div>
+<script>
+
+    var start = [60, 40];
+    var end = [140, 40];
+    var isAtStart = true;
+
+    document.getElementById('fly').addEventListener('click', function() {
+        // depending on whether we're currently at point a or b, aim for
+        // point a or b
+        var target = isAtStart ? end : start;
+
+        // and now we're at the opposite point
+        isAtStart = !isAtStart;
+
+        map.flyTo({
+            center: target,
+            zoom: 9,
+            bearing: 0,
+            speed: 1.5, // make the flying slow
+            curve: 1, // change the speed at which it zooms out
+            easing: function (t) {
+                return t;
+            }
+        });
+    });
+
+    function a() {
+        alert('请输入您选择的参数后点击更改风格按钮！');
+    }
+    /* 点击按钮，下拉菜单在 显示/隐藏 之间切换 */
+    function myFunction() {
+        document.getElementById("myDropdown").classList.toggle("show");
+
+    }
+    function myFunction2() {
+        document.getElementById("myDropdown1").classList.toggle("show");
+    }
+
+    // 点击下拉菜单意外区域隐藏
+    window.onclick = function(event) {
+        if (!event.target.matches('.dropbtn')) {
+
+            var dropdowns = document.getElementsByClassName("dropdown-content");
+            var i;
+            for (i = 0; i < dropdowns.length; i++) {
+                var openDropdown = dropdowns[i];
+                if (openDropdown.classList.contains('show')) {
+                    openDropdown.classList.remove('show');
+                }
+            }
+        }
+    }
+
+    var MapUrl;
+    var SpriteUrl;
+    var GlyphsUrl;
+    MapUrl = "http://47.102.141.240:8080/geoserver/gwc/service/tms/1.0.0/gis_competition:YLSL@EPSG:900913@pbf/{z}/{x}/{y}.pbf";
+    SpriteUrl="mapbox://styles/mapbox/light-v10";
+    GlyphsUrl = "http://47.102.141.240:8080/VGEs_Web1.0/fonts/{fontstack}/{range}.pbf";
+
+
+    //选择类型symbol line polygon
+    function selectType() {
+        var select= document.querySelector("#sele");
+//        var point=document.querySelector(".pointProperty");
+        var line=document.querySelector(".lineProperty");
+        var polygon=document.querySelector(".polygonProperty");
+        if(select.value=="symbol"){
+//            point.style.display="block";
+            line.style.display="none";
+            polygon.style.display="none";
+        }else if(select.value=="line"){
+//            point.style.display="none";
+            line.style.display="block";
+            polygon.style.display="none";
+        }else {
+//            point.style.display="none";
+            line.style.display="none";
+            polygon.style.display="block";
+        }
+    }
+    var icon = document.getElementById("pd_dFakeButtonIcon");
+    var smallicon = document.getElementById("pd_dSmallIcon");
+    var dicon=document.getElementById("pd_dIcon");
+    //mapbox密钥
+    mapboxgl.accessToken = 'pk.eyJ1Ijoib25lZ2lzZXIiLCJhIjoiY2plZHptcnVuMW5tazMzcWVteHM2aGFsZiJ9.ERWP7zZ-N6fmNl3cRocJ1g';
+    //样式模板中的资源
+    var simple = {
+        "version": 8,
+        "sources": {
+            "os": {
+                "type": "vector",
+                "scheme": "tms",
+                //资源地址
+                "tiles": [MapUrl]
+            }
+        },
+        //符号地址
+        "sprite":SpriteUrl,
+        //字体地址
+        "glyphs":GlyphsUrl ,
+        "layers": [
+            {   //背景图层颜色
+                "id": "background",
+                "type": "background",
+                "paint": {
+                    "background-color": "#FFFFFF"
+                },
+                "interactive": true
+            },
+            {
+                "id": "Sea",//主要绿地
+                "type": "fill",
+                "source": "os",
+                "source-layer": "occean",     //改为图层名
+                "minzoom": 0,
+                "paint": {
+                    "fill-color": "#c1dcb9",
+                    "fill-opacity": 0.5
+                },
+                "interactive": true
+            },
+            {
+                "id": "anhui",//
+                "type": "fill",
+                "source": "os",
+                "source-layer": "SJXZQ",     //改为图层名
+                "minzoom": 0,
+                "filter": ["all", ["in", "NAME", "安徽省"]],
+                "paint": {
+                    "fill-color": "#F0E68C",
+                    "fill-opacity": 0.5
+                },
+                "interactive": true
+            },            {
+                "id": "jiangsu",//
+                "type": "fill",
+                "source": "os",
+                "source-layer": "SJXZQ",     //改为图层名
+                "minzoom": 0,
+                "filter": ["all", ["in", "NAME", "江苏省"]],
+                "paint": {
+                    "fill-color": "#f06356",
+                    "fill-opacity": 0.5
+                },
+                "interactive": true
+            },
+            {
+                "id": "yunnan",//
+                "type": "fill",
+                "source": "os",
+                "source-layer": "SJXZQ",     //改为图层名
+                "minzoom": 0,
+                "filter": ["all", ["in", "NAME", "云南省"]],
+                "paint": {
+                    "fill-color": "#b9e8f0",
+                    "fill-opacity": 0.5
+                },
+                "interactive": true
+            },            {
+                "id": "sichuan",//
+                "type": "fill",
+                "source": "os",
+                "source-layer": "SJXZQ",     //改为图层名
+                "minzoom": 0,
+                "filter": ["all", ["in", "NAME", "四川省"]],
+                "paint": {
+                    "fill-color": "#8ef06b",
+                    "fill-opacity": 0.5
+                },
+                "interactive": true
+            },
+            {
+                "id": "qinghai",//
+                "type": "fill",
+                "source": "os",
+                "source-layer": "SJXZQ",     //改为图层名
+                "minzoom": 0,
+                "filter": ["all", ["in", "NAME", "青海省"]],
+                "paint": {
+                    "fill-color": "#f063b8",
+                    "fill-opacity": 0.5
+                },
+                "interactive": true
+            },            {
+                "id": "xizangzizhiqu",//
+                "type": "fill",
+                "source": "os",
+                "source-layer": "SJXZQ",     //改为图层名
+                "minzoom": 0,
+                "filter": ["all", ["in", "NAME", "西藏自治区"]],
+                "paint": {
+                    "fill-color": "#f5c02f",
+                    "fill-opacity": 0.5
+                },
+                "interactive": true
+            },
+            {
+                "id": "xinjiangweiwuerzizhiqu",//
+                "type": "fill",
+                "source": "os",
+                "source-layer": "SJXZQ",     //改为图层名
+                "minzoom": 0,
+                "filter": ["all", ["in", "NAME", "新疆维吾尔自治区"]],
+                "paint": {
+                    "fill-color": "#e9eaf0",
+                    "fill-opacity": 0.5
+                },
+                "interactive": true
+            },            {
+                "id": "gansu",//
+                "type": "fill",
+                "source": "os",
+                "source-layer": "SJXZQ",     //改为图层名
+                "minzoom": 0,
+                "filter": ["all", ["in", "NAME", "甘肃省"]],
+                "paint": {
+                    "fill-color": "#ebf08b",
+                    "fill-opacity": 0.5
+                },
+                "interactive": true
+            },
+            {
+                "id": "ningxiahuizuzizhiqu",//
+                "type": "fill",
+                "source": "os",
+                "source-layer": "SJXZQ",     //改为图层名
+                "minzoom": 0,
+                "filter": ["all", ["in", "NAME", "宁夏回族自治区"]],
+                "paint": {
+                    "fill-color": "#28f099",
+                    "fill-opacity": 0.5
+                },
+                "interactive": true
+            },            {
+                "id": "shanxi1",//
+                "type": "fill",
+                "source": "os",
+                "source-layer": "SJXZQ",     //改为图层名
+                "minzoom": 0,
+                "filter": ["all", ["in", "NAME", "山西省"]],
+                "paint": {
+                    "fill-color": "#60f029",
+                    "fill-opacity": 0.5
+                },
+                "interactive": true
+            },
+            {
+                "id": "tianjin",//
+                "type": "fill",
+                "source": "os",
+                "source-layer": "SJXZQ",     //改为图层名
+                "minzoom": 0,
+                "filter": ["all", ["in", "NAME", "天津市"]],
+                "paint": {
+                    "fill-color": "#f04be1",
+                    "fill-opacity": 0.5
+                },
+                "interactive": true
+            },            {
+                "id": "hebei",//
+                "type": "fill",
+                "source": "os",
+                "source-layer": "SJXZQ",     //改为图层名
+                "minzoom": 0,
+                "filter": ["all", ["in", "NAME", "河北省"]],
+                "paint": {
+                    "fill-color": "#f0881f",
+                    "fill-opacity": 0.5
+                },
+                "interactive": true
+            },
+            {
+                "id": "beijing",//
+                "type": "fill",
+                "source": "os",
+                "source-layer": "SJXZQ",     //改为图层名
+                "minzoom": 0,
+                "filter": ["all", ["in", "NAME", "北京市"]],
+                "paint": {
+                    "fill-color": "#57f0ef",
+                    "fill-opacity": 0.5
+                },
+                "interactive": true
+            },            {
+                "id": "neimengguzizhiqu",//
+                "type": "fill",
+                "source": "os",
+                "source-layer": "SJXZQ",     //改为图层名
+                "minzoom": 0,
+                "filter": ["all", ["in", "NAME", "内蒙古自治区"]],
+                "paint": {
+                    "fill-color": "#f0dc90",
+                    "fill-opacity": 0.5
+                },
+                "interactive": true
+            },
+            {
+                "id": "heilongjiang",//
+                "type": "fill",
+                "source": "os",
+                "source-layer": "SJXZQ",     //改为图层名
+                "minzoom": 0,
+                "filter": ["all", ["in", "NAME", "黑龙江省"]],
+                "paint": {
+                    "fill-color": "#f0d8ef",
+                    "fill-opacity": 0.5
+                },
+                "interactive": true
+            },            {
+                "id": "jilin",//
+                "type": "fill",
+                "source": "os",
+                "source-layer": "SJXZQ",     //改为图层名
+                "minzoom": 0,
+                "filter": ["all", ["in", "NAME", "吉林省"]],
+                "paint": {
+                    "fill-color": "#a1f0ce",
+                    "fill-opacity": 0.5
+                },
+                "interactive": true
+            },
+            {
+                "id": "liaoning",//
+                "type": "fill",
+                "source": "os",
+                "source-layer": "SJXZQ",     //改为图层名
+                "minzoom": 0,
+                "filter": ["all", ["in", "NAME", "辽宁省"]],
+                "paint": {
+                    "fill-color": "#f0ae8c",
+                    "fill-opacity": 0.5
+                },
+                "interactive": true
+            },            {
+                "id": "taiwan",//
+                "type": "fill",
+                "source": "os",
+                "source-layer": "SJXZQ",     //改为图层名
+                "minzoom": 0,
+                "filter": ["all", ["in", "NAME", "台湾省"]],
+                "paint": {
+                    "fill-color": "#c8edf0",
+                    "fill-opacity": 0.5
+                },
+                "interactive": true
+            },
+            {
+                "id": "zhejiang",//
+                "type": "fill",
+                "source": "os",
+                "source-layer": "SJXZQ",     //改为图层名
+                "minzoom": 0,
+                "filter": ["all", ["in", "NAME", "浙江省"]],
+                "paint": {
+                    "fill-color": "#c6caf0",
+                    "fill-opacity": 0.5
+                },
+                "interactive": true
+            },            {
+                "id": "shanghai",//
+                "type": "fill",
+                "source": "os",
+                "source-layer": "SJXZQ",     //改为图层名
+                "minzoom": 0,
+                "filter": ["all", ["in", "NAME", "上海市"]],
+                "paint": {
+                    "fill-color": "#abf0f0",
+                    "fill-opacity": 0.5
+                },
+                "interactive": true
+            },
+            {
+                "id": "shandong",//
+                "type": "fill",
+                "source": "os",
+                "source-layer": "SJXZQ",     //改为图层名
+                "minzoom": 0,
+                "filter": ["all", ["in", "NAME", "山东省"]],
+                "paint": {
+                    "fill-color": "#f0d1d8",
+                    "fill-opacity": 0.5
+                },
+                "interactive": true
+            },            {
+                "id": "hubei",//
+                "type": "fill",
+                "source": "os",
+                "source-layer": "SJXZQ",     //改为图层名
+                "minzoom": 0,
+                "filter": ["all", ["in", "NAME", "湖北省"]],
+                "paint": {
+                    "fill-color": "#b3b8f0",
+                    "fill-opacity": 0.5
+                },
+                "interactive": true
+            },
+            {
+                "id": "henan",//
+                "type": "fill",
+                "source": "os",
+                "source-layer": "SJXZQ",     //改为图层名
+                "minzoom": 0,
+                "filter": ["all", ["in", "NAME", "河南省"]],
+                "paint": {
+                    "fill-color": "#f0d3ea",
+                    "fill-opacity": 0.5
+                },
+                "interactive": true
+            },            {
+                "id": "shanxi",//
+                "type": "fill",
+                "source": "os",
+                "source-layer": "SJXZQ",     //改为图层名
+                "minzoom": 0,
+                "filter": ["all", ["in", "NAME", "陕西省"]],
+                "paint": {
+                    "fill-color": "#e7c2f0",
+                    "fill-opacity": 0.5
+                },
+                "interactive": true
+            },
+            {
+                "id": "chongqing",//
+                "type": "fill",
+                "source": "os",
+                "source-layer": "SJXZQ",     //改为图层名
+                "minzoom": 0,
+                "filter": ["all", ["in", "NAME", "重庆市"]],
+                "paint": {
+                    "fill-color": "#f0d5b0",
+                    "fill-opacity": 0.5
+                },
+                "interactive": true
+            },            {
+                "id": "hunan",//
+                "type": "fill",
+                "source": "os",
+                "source-layer": "SJXZQ",     //改为图层名
+                "minzoom": 0,
+                "filter": ["all", ["in", "NAME", "湖南省"]],
+                "paint": {
+                    "fill-color": "#f080c7",
+                    "fill-opacity": 0.5
+                },
+                "interactive": true
+            },
+            {
+                "id": "guizhou",//
+                "type": "fill",
+                "source": "os",
+                "source-layer": "SJXZQ",     //改为图层名
+                "minzoom": 0,
+                "filter": ["all", ["in", "NAME", "贵州省"]],
+                "paint": {
+                    "fill-color": "#efecf0",
+                    "fill-opacity": 0.5
+                },
+                "interactive": true
+            },            {
+                "id": "guangxizhuangzuzizhiqu",//
+                "type": "fill",
+                "source": "os",
+                "source-layer": "SJXZQ",     //改为图层名
+                "minzoom": 0,
+                "filter": ["all", ["in", "NAME", "广西壮族自治区"]],
+                "paint": {
+                    "fill-color": "#653358",
+                    "fill-opacity": 0.5
+                },
+                "interactive": true
+            },
+            {
+                "id": "guangdong",//
+                "type": "fill",
+                "source": "os",
+                "source-layer": "SJXZQ",     //改为图层名
+                "minzoom": 0,
+                "filter": ["all", ["in", "NAME", "广东省"]],
+                "paint": {
+                    "fill-color": "#713652",
+                    "fill-opacity": 0.5
+                },
+                "interactive": true
+            },            {
+                "id": "xianggangtebiexingzhengqu",//
+                "type": "fill",
+                "source": "os",
+                "source-layer": "SJXZQ",     //改为图层名
+                "minzoom": 0,
+                "filter": ["all", ["in", "NAME", "香港特别行政区"]],
+                "paint": {
+                    "fill-color": "#716768",
+                    "fill-opacity": 0.5
+                },
+                "interactive": true
+            },
+            {
+                "id": "jiangxi",//
+                "type": "fill",
+                "source": "os",
+                "source-layer": "SJXZQ",     //改为图层名
+                "minzoom": 0,
+                "filter": ["all", ["in", "NAME", "江西省"]],
+                "paint": {
+                    "fill-color": "#a36af0",
+                    "fill-opacity": 0.5
+                },
+                "interactive": true
+            },            {
+                "id": "fujian",//
+                "type": "fill",
+                "source": "os",
+                "source-layer": "SJXZQ",     //改为图层名
+                "minzoom": 0,
+                "filter": ["all", ["in", "NAME", "福建省"]],
+                "paint": {
+                    "fill-color": "#49534d",
+                    "fill-opacity": 0.5
+                },
+                "interactive": true
+            },
+            {
+                "id": "hainan",//
+                "type": "fill",
+                "source": "os",
+                "source-layer": "SJXZQ",     //改为图层名
+                "minzoom": 0,
+                "filter": ["all", ["in", "NAME", "海南省"]],
+                "paint": {
+                    "fill-color": "#203239",
+                    "fill-opacity": 0.5
+                },
+                "interactive": true
+            },
+            {
+                "id": "CJHH",
+                "type": "line",
+                "source": "os",
+                "source-layer": "CJHH",
+                "minzoom": 2,
+                "paint": {
+                    'line-color': '#8fc3ee',
+                    //虚实  第一个参数 每一段的长度 第二个参数 每一段的间距  即段与段之间的间隔
+                    //默认 第一个参数大于0 第二个参数为0 即为连续的实线
+                    "line-dasharray": [1,0],
+                    'line-width': 1,
+                    //线 透明度
+                    'line-opacity': 1
+                }
+            },
+//            {
+//                "id": "SJXZQZD",
+//                "type": "symbol",
+//                "source": "os",
+//                "source-layer": "SJXZQZD",
+//                "minzoom":0,
+//                "layout": {
+//                    "symbol-spacing": 1000,
+//                    "text-field": "{name}",
+//                    "text-size": 12,
+////                    "icon-image": "star",
+//                    "text-offset": [1.0, 0],
+//                    "text-anchor": "left",
+//                    "text-font": ["Microsoft YaHei"],
+//                    "text-padding": 2
+//                },
+//                "paint": {
+//                    "text-color": "#ADADAD",
+//                    "text-halo-width": 1
+//                },
+//                "interactive": true
+//            }
+            ]
+    };
+
+
+    var map = new mapboxgl.Map({
+        container: 'map',
+        style: simple,
+        zoom:2,
+        center:  [109,35]
+    });
+
+    /***      面    ****/
+    function SubmitPolygon(){
+        Polygon_color = document.getElementById("pd_FillColor").value;
+        pd_dtransparency = parseFloat(document.getElementById("pd_dtransparency").value);
+        return [Polygon_color,pd_dtransparency];
+    }
+
+    document.getElementById('pd_dSurePolygon').addEventListener('click',function(){
+        map.setPaintProperty(layer.value,'fill-color',document.getElementById("pd_FillColor").value);
+        if ((document.getElementById("pd_dtransparency").value)===""){
+            map.setPaintProperty(layer.value,'fill-opacity',1);}
+        else {
+            map.setPaintProperty(layer.value,'fill-opacity',parseFloat(document.getElementById("pd_dtransparency").value));}
+    });
+    /***      面    ****/
+
+    /***  专题地图生成 ***/
+    /** GDP **/
+    function GDP() {
+        map.setPaintProperty('xizangzizhiqu','fill-color','#D7F0AF');
+        map.setPaintProperty('qinghai','fill-color','#D7F0AF');
+        map.setPaintProperty('xianggangtebiexingzhengqu','fill-color','#D7F0AF');
+        map.setPaintProperty('ningxiahuizuzizhiqu','fill-color','#D7F0AF');
+        map.setPaintProperty('hainan','fill-color','#D7F0AF');
+        map.setPaintProperty('gansu','fill-color','#D7F0AF');
+
+        map.setPaintProperty('xinjiangweiwuerzizhiqu','fill-color','#B4C989');
+        map.setPaintProperty('guizhou','fill-color','#B4C989');
+        map.setPaintProperty('shanxi1','fill-color','#B4C989');
+        map.setPaintProperty('jilin','fill-color','#B4C989');
+        map.setPaintProperty('neimengguzizhiqu','fill-color','#B4C989');
+        map.setPaintProperty('heilongjiang','fill-color','#B4C989');
+        map.setPaintProperty('yunnan','fill-color','#B4C989');
+        map.setPaintProperty('tianjin','fill-color','#B4C989');
+        map.setPaintProperty('chongqing','fill-color','#B4C989');
+        map.setPaintProperty('guangxizhuangzuzizhiqu','fill-color','#B4C989');
+        map.setPaintProperty('jiangxi','fill-color','#B4C989');
+        map.setPaintProperty('shanxi','fill-color','#B4C989');
+
+        map.setPaintProperty('liaoning','fill-color','#98A867');
+        map.setPaintProperty('anhui','fill-color','#98A867');
+        map.setPaintProperty('beijing','fill-color','#98A867');
+        map.setPaintProperty('shanghai','fill-color','#98A867');
+        map.setPaintProperty('fujian','fill-color','#98A867');
+        map.setPaintProperty('hunan','fill-color','#98A867');
+
+        map.setPaintProperty('hebei','fill-color','#798748');
+        map.setPaintProperty('hubei','fill-color','#798748');
+        map.setPaintProperty('sichuan','fill-color','#798748');
+        map.setPaintProperty('taiwan','fill-color','#798748');
+        map.setPaintProperty('henan','fill-color','#798748');
+        map.setPaintProperty('zhejiang','fill-color','#798748');
+
+        map.setPaintProperty('shandong','fill-color','#606B2D');
+        map.setPaintProperty('jiangsu','fill-color','#606B2D');
+        map.setPaintProperty('guangdong','fill-color','#606B2D');
+    }
+    /**  population  **/
+    function population() {
+        map.setPaintProperty('xizangzizhiqu','fill-color','#FFEBD6');
+        map.setPaintProperty('qinghai','fill-color','#FFEBD6');
+        map.setPaintProperty('ningxiahuizuzizhiqu','fill-color','#FFEBD6');
+        map.setPaintProperty('xianggangtebiexingzhengqu','fill-color','#FFEBD6');
+        map.setPaintProperty('hainan','fill-color','#FFEBD6');
+        map.setPaintProperty('tianjin','fill-color','#FFEBD6');
+
+        map.setPaintProperty('beijing','fill-color','#F0BC9C');
+        map.setPaintProperty('taiwan','fill-color','#F0BC9C');
+        map.setPaintProperty('xinjiangweiwuerzizhiqu','fill-color','#F0BC9C');
+        map.setPaintProperty('neimengguzizhiqu','fill-color','#F0BC9C');
+        map.setPaintProperty('gansu','fill-color','#F0BC9C');
+        map.setPaintProperty('jilin','fill-color','#F0BC9C');
+        map.setPaintProperty('chongqing','fill-color','#F0BC9C');
+        map.setPaintProperty('shanghai','fill-color','#F0BC9C');
+
+        map.setPaintProperty('guizhou','fill-color','#E08465');
+        map.setPaintProperty('shanxi1','fill-color','#E08465');
+        map.setPaintProperty('heilongjiang','fill-color','#E08465');
+        map.setPaintProperty('shanxi','fill-color','#E08465');
+        map.setPaintProperty('fujian','fill-color','#E08465');
+        map.setPaintProperty('liaoning','fill-color','#E08465');
+        map.setPaintProperty('jiangxi','fill-color','#E08465');
+        map.setPaintProperty('yunnan','fill-color','#E08465');
+        map.setPaintProperty('guangxizhuangzuzizhiqu','fill-color','#E08465');
+
+        map.setPaintProperty('zhejiang','fill-color','#D14734');
+        map.setPaintProperty('hubei','fill-color','#D14734');
+        map.setPaintProperty('anhui','fill-color','#D14734');
+        map.setPaintProperty('hunan','fill-color','#D14734');
+        map.setPaintProperty('hebei','fill-color','#D14734');
+        map.setPaintProperty('jiangsu','fill-color','#D14734');
+        map.setPaintProperty('sichuan','fill-color','#D14734');
+
+        map.setPaintProperty('henan','fill-color','#C40A0A');
+        map.setPaintProperty('shandong','fill-color','#C40A0A');
+        map.setPaintProperty('guangdong','fill-color','#C40A0A');
+    }
+    /** 耕地面积***/
+    function area() {
+        map.setPaintProperty('xizangzizhiqu','fill-color','#FFCCFF');
+        map.setPaintProperty('beijing','fill-color','#FFCCFF');
+        map.setPaintProperty('shanghai','fill-color','#FFCCFF');
+        map.setPaintProperty('tianjin','fill-color','#FFCCFF');
+        map.setPaintProperty('qinghai','fill-color','#FFCCFF');
+        map.setPaintProperty('taiwan','fill-color','#FFCCFF');
+        map.setPaintProperty('hainan','fill-color','#FFCCFF');
+        map.setPaintProperty('xianggangtebiexingzhengqu','fill-color','#FFCCFF');
+        map.setPaintProperty('ningxiahuizuzizhiqu','fill-color','#FFCCFF');
+        map.setPaintProperty('fujian','fill-color','#FFCCFF');
+
+        map.setPaintProperty('zhejiang','fill-color','#F2A0F1');
+        map.setPaintProperty('chongqing','fill-color','#F2A0F1');
+        map.setPaintProperty('jiangxi','fill-color','#F2A0F1');
+        map.setPaintProperty('guangdong','fill-color','#F2A0F1');
+
+        map.setPaintProperty('xinjiangweiwuerzizhiqu','fill-color','#E675E4');
+        map.setPaintProperty('gansu','fill-color','#E675E4');
+        map.setPaintProperty('guizhou','fill-color','#E675E4');
+        map.setPaintProperty('shanxi1','fill-color','#E675E4');
+        map.setPaintProperty('shanxi','fill-color','#E675E4');
+        map.setPaintProperty('liaoning','fill-color','#E675E4');
+        map.setPaintProperty('guangxizhuangzuzizhiqu','fill-color','#E675E4');
+        map.setPaintProperty('hunan','fill-color','#E675E4');
+        map.setPaintProperty('hebei','fill-color','#E675E4');
+        map.setPaintProperty('jiangsu','fill-color','#E675E4');
+
+        map.setPaintProperty('jilin','fill-color','#D647D4');
+        map.setPaintProperty('anhui','fill-color','#D647D4');
+        map.setPaintProperty('sichuan','fill-color','#D647D4');
+        map.setPaintProperty('yunnan','fill-color','#D647D4');
+        map.setPaintProperty('hubei','fill-color','#D647D4');
+        map.setPaintProperty('neimengguzizhiqu','fill-color','#D647D4');
+        map.setPaintProperty('shandong','fill-color','#D647D4');
+        map.setPaintProperty('henan','fill-color','#D647D4');
+
+        map.setPaintProperty('heilongjiang','fill-color','#C700C7');
+
+    }
+    /***2018年人均GDP增长情况***/
+    function peo_GDP() {
+        map.setPaintProperty('tianjin','fill-color','#FFFF80');
+
+        map.setPaintProperty('chongqing','fill-color','#FAD155');
+        map.setPaintProperty('shandong','fill-color','#FAD155');
+        map.setPaintProperty('heilongjiang','fill-color','#FAD155');
+        map.setPaintProperty('hebei','fill-color','#FAD155');
+        map.setPaintProperty('shanghai','fill-color','#FAD155');
+        map.setPaintProperty('xizangzizhiqu','fill-color','#FAD155');
+
+        map.setPaintProperty('neimengguzizhiqu','fill-color','#F2A72E');
+        map.setPaintProperty('henan','fill-color','#F2A72E');
+        map.setPaintProperty('hunan','fill-color','#F2A72E');
+        map.setPaintProperty('xianggangtebiexingzhengqu','fill-color','#F2A72E');
+        map.setPaintProperty('ningxiahuizuzizhiqu','fill-color','#F2A72E');
+        map.setPaintProperty('jiangsu','fill-color','#F2A72E');
+        map.setPaintProperty('liaoning','fill-color','#F2A72E');
+        map.setPaintProperty('beijing','fill-color','#F2A72E');
+        map.setPaintProperty('hainan','fill-color','#F2A72E');
+        map.setPaintProperty('shanxi1','fill-color','#F2A72E');
+        map.setPaintProperty('guangdong','fill-color','#F2A72E');
+        map.setPaintProperty('zhejiang','fill-color','#F2A72E');
+
+        map.setPaintProperty('qinghai','fill-color','#AD5313');
+        map.setPaintProperty('jiangxi','fill-color','#AD5313');
+        map.setPaintProperty('gansu','fill-color','#AD5313');
+        map.setPaintProperty('guizhou','fill-color','#AD5313');
+        map.setPaintProperty('guangxizhuangzuzizhiqu','fill-color','#AD5313');
+        map.setPaintProperty('jilin','fill-color','#AD5313');
+        map.setPaintProperty('sichuan','fill-color','#AD5313');
+        map.setPaintProperty('yunnan','fill-color','#AD5313');
+
+        map.setPaintProperty('hubei','fill-color','#6B0000');
+        map.setPaintProperty('anhui','fill-color','#6B0000');
+        map.setPaintProperty('fujian','fill-color','#6B0000');
+        map.setPaintProperty('shanxi','fill-color','#6B0000');
+        map.setPaintProperty('xinjiangweiwuerzizhiqu','fill-color','#6B0000');
+        map.setPaintProperty('taiwan','fill-color','#6B0000');
+    }
+    /***  专题地图生成 ***/
+
+    map.addControl(new mapboxgl.FullscreenControl());
+    map.addControl(new mapboxgl.NavigationControl())
+
+
+</script>
+</body>
+</html>

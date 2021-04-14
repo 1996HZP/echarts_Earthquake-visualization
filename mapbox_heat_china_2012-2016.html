@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <title>Create a heatmap layer</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.0.0/mapbox-gl.js'></script>
+    <link href='css/VGEs.css' rel='stylesheet' />
+    <style>
+        body { margin:0; padding:0; }
+        #map { position:absolute; top:0; bottom:0; width:100%; }
+        .map-overlay {
+            z-index: 2;
+            font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+            position: absolute;
+            width: 200px;
+            top: 0;
+            left: 0;
+            padding: 10px;
+        }
+
+        .map-overlay .map-overlay-inner {
+            background-color: #fff;
+            box-shadow:0 1px 2px rgba(0, 0, 0, 0.10);
+            border-radius: 3px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .map-overlay-inner fieldset {
+            border: none;
+            padding: 0;
+            margin: 0 0 10px;
+        }
+
+        .map-overlay-inner fieldset:last-child {
+            margin: 0;
+        }
+
+        .map-overlay-inner select {
+            width: 100%;
+        }
+
+        .map-overlay-inner label {
+            display: block;
+            font-weight: bold;
+            margin: 0 0 5px;
+        }
+
+        .map-overlay-inner button {
+            display: inline-block;
+            width: 36px;
+            height: 20px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .map-overlay-inner button:focus {
+            outline: none;
+        }
+
+        .map-overlay-inner button:hover {
+            box-shadow:inset 0 0 0 3px rgba(0, 0, 0, 0.10);
+        }
+    </style>
+</head>
+<body>
+
+
+<div id='map'></div>
+<div class='map-overlay top'>
+    <div class='map-overlay-inner'>
+        <fieldset>
+            <label>Choose a color</label>
+            <div id='swatches'></div>
+        </fieldset>
+    </div>
+</div>
+<script>
+    mapboxgl.accessToken = 'pk.eyJ1Ijoib25lZ2lzZXIiLCJhIjoiY2plZHptcnVuMW5tazMzcWVteHM2aGFsZiJ9.ERWP7zZ-N6fmNl3cRocJ1g';
+    var map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/dark-v10',
+        center: [116,39],
+        zoom: 2
+    });
+
+    map.on('load', function() {
+        // Add a geojson point source.
+        // Heatmap layers also work with a vector tile source.
+        map.addSource('earthquakes', {
+            "type": "geojson",
+            "data": "http://47.102.141.240:8080/data/chinaearthquake.json"
+        });
+
+        map.addLayer({
+            "id": "earthquakes-heat",
+            "type": "heatmap",
+            "source": "earthquakes",
+            "maxzoom": 9,
+            "paint": {
+                // Increase the heatmap weight based on frequency and property magnitude
+                "heatmap-weight": [
+                    "interpolate",
+                    ["linear"],
+                    ["get", "mag"],
+                    0, 0,
+                    6, 1
+                ],
+                // Increase the heatmap color weight weight by zoom level
+                // heatmap-intensity is a multiplier on top of heatmap-weight
+                "heatmap-intensity": [
+                    "interpolate",
+                    ["linear"],
+                    ["zoom"],
+                    0, 1,
+                    9, 3
+                ],
+                // Color ramp for heatmap.  Domain is 0 (low) to 1 (high).
+                // Begin color ramp at 0-stop with a 0-transparancy color
+                // to create a blur-like effect.
+                "heatmap-color": [
+                    "interpolate",
+                    ["linear"],
+                    ["heatmap-density"],
+                    0, "rgba(33,102,172,0)",
+                    0.2, "#b3b8f0",
+                    0.4, "#D1E5F0",
+                    0.6, "#FDDBC7",
+                    0.8, "#efdaa8",
+                    1, "#e3dc48"
+                ],
+                // Adjust the heatmap radius by zoom level
+                "heatmap-radius": [
+                    "interpolate",
+                    ["linear"],
+                    ["zoom"],
+                    0, 2,
+                    9, 20
+                ],
+                // Transition from heatmap to circle layer by zoom level
+                "heatmap-opacity": [
+                    "interpolate",
+                    ["linear"],
+                    ["zoom"],
+                    7, 1,
+                    9, 0
+                ],
+            }
+        }, 'waterway-label');
+
+        map.addLayer({
+            "id": "earthquakes-point",
+            "type": "circle",
+            "source": "earthquakes",
+            "minzoom": 7,
+            "paint": {
+                // Size circle radius by earthquake magnitude and zoom level
+                "circle-radius": [
+                    "interpolate",
+                    ["linear"],
+                    ["zoom"],
+                    7, [
+                        "interpolate",
+                        ["linear"],
+                        ["get", "mag"],
+                        1, 1,
+                        6, 4
+                    ],
+                    16, [
+                        "interpolate",
+                        ["linear"],
+                        ["get", "mag"],
+                        1, 5,
+                        6, 50
+                    ]
+                ],
+                // Color circle by earthquake magnitude
+                "circle-color": [
+                    "interpolate",
+                    ["linear"],
+                    ["get", "mag"],
+                    1, "#2165AC",
+                    2, "#67A9CF",
+                    3, "#D1E5F0",
+                    4, "#FDDBC7",
+                    5, "#EF8A62",
+                    6, "#e3dc48"
+                ],
+                "circle-stroke-color": "white",
+                "circle-stroke-width": 1,
+                // Transition from heatmap to circle layer by zoom level
+                "circle-opacity": [
+                    "interpolate",
+                    ["linear"],
+                    ["zoom"],
+                    7, 0,
+                    8, 1
+                ]
+            }
+        }, 'waterway-label');
+    });
+
+    var swatches = document.getElementById('swatches');
+    var layer = document.getElementById('layer');
+    var colors = [
+        '#ffffcc',
+        '#a1dab4',
+        '#41b6c4',
+        '#2c7fb8',
+        '#253494',
+        '#fed976',
+        '#feb24c',
+        '#fd8d3c',
+        '#f03b20',
+        '#bd0026'
+    ];
+
+    colors.forEach(function(color) {
+        var swatch = document.createElement('button');
+        swatch.style.backgroundColor = color;
+        swatch.addEventListener('click', function() {
+//            map.setPaintProperty("earthquakes-heat", 'heatmap-color', color);
+//        }
+        if(color=='#ffffcc')
+        {
+            map.setPaintProperty('earthquakes-heat','heatmap-color',[
+                "interpolate",
+                ["linear"],
+                ["heatmap-density"],
+                0, "rgba(33,102,172,0)",
+                0.2, "#b3b8f0",
+                0.4, "#D1E5F0",
+                0.6, "#FDDBC7",
+                0.8, "#efdaa8",
+                1, "#ffffcc"
+            ])
+        }
+        if(color=='#a1dab4')
+        {
+            map.setPaintProperty('earthquakes-heat','heatmap-color',[
+                "interpolate",
+                ["linear"],
+                ["heatmap-density"],
+                0, "rgba(33,102,172,0)",
+                0.2, "#b3b8f0",
+                0.4, "#D1E5F0",
+                0.6, "#FDDBC7",
+                0.8, "#efdaa8",
+                1, "#a1dab4"
+            ])
+        }
+        if(color== '#41b6c4')
+        {
+            map.setPaintProperty('earthquakes-heat','heatmap-color',[
+                "interpolate",
+                ["linear"],
+                ["heatmap-density"],
+                0, "rgba(33,102,172,0)",
+                0.2, "#b3b8f0",
+                0.4, "#D1E5F0",
+                0.6, "#FDDBC7",
+                0.8, "#efdaa8",
+                1, "#41b6c4"
+            ])
+        }
+        if(color== '#2c7fb8')
+        {
+            map.setPaintProperty('earthquakes-heat','heatmap-color',[
+                "interpolate",
+                ["linear"],
+                ["heatmap-density"],
+                0, "rgba(33,102,172,0)",
+                0.2, "#b3b8f0",
+                0.4, "#D1E5F0",
+                0.6, "#FDDBC7",
+                0.8, "#efdaa8",
+                1, "#2c7fb8"
+            ])
+        }
+        if(color== '#253494')
+        {
+            map.setPaintProperty('earthquakes-heat','heatmap-color',[
+                "interpolate",
+                ["linear"],
+                ["heatmap-density"],
+                0, "rgba(33,102,172,0)",
+                0.2, "#b3b8f0",
+                0.4, "#D1E5F0",
+                0.6, "#FDDBC7",
+                0.8, "#efdaa8",
+                1, "#253494"
+            ])
+        }
+        if(color== '#fed976')
+        {
+            map.setPaintProperty('earthquakes-heat','heatmap-color',[
+                "interpolate",
+                ["linear"],
+                ["heatmap-density"],
+                0, "rgba(33,102,172,0)",
+                0.2, "#b3b8f0",
+                0.4, "#D1E5F0",
+                0.6, "#FDDBC7",
+                0.8, "#efdaa8",
+                1, "#fed976"
+            ])
+        }
+        if(color== '#feb24c')
+        {
+            map.setPaintProperty('earthquakes-heat','heatmap-color',[
+                "interpolate",
+                ["linear"],
+                ["heatmap-density"],
+                0, "rgba(33,102,172,0)",
+                0.2, "#b3b8f0",
+                0.4, "#D1E5F0",
+                0.6, "#FDDBC7",
+                0.8, "#efdaa8",
+                1, "#feb24c"
+            ])
+        }
+        if(color== '#fd8d3c')
+        {
+            map.setPaintProperty('earthquakes-heat','heatmap-color',[
+                "interpolate",
+                ["linear"],
+                ["heatmap-density"],
+                0, "rgba(33,102,172,0)",
+                0.2, "#b3b8f0",
+                0.4, "#D1E5F0",
+                0.6, "#FDDBC7",
+                0.8, "#efdaa8",
+                1, "#fd8d3c"
+            ])
+        }
+        if(color== '#f03b20')
+        {
+            map.setPaintProperty('earthquakes-heat','heatmap-color',[
+                "interpolate",
+                ["linear"],
+                ["heatmap-density"],
+                0, "rgba(33,102,172,0)",
+                0.2, "#b3b8f0",
+                0.4, "#D1E5F0",
+                0.6, "#FDDBC7",
+                0.8, "#efdaa8",
+                1, "#f03b20"
+            ])
+        }
+        if(color== '#bd0026')
+        {
+            map.setPaintProperty('earthquakes-heat','heatmap-color',[
+                "interpolate",
+                ["linear"],
+                ["heatmap-density"],
+                0, "rgba(33,102,172,0)",
+                0.2, "#b3b8f0",
+                0.4, "#D1E5F0",
+                0.6, "#FDDBC7",
+                0.8, "#efdaa8",
+                1, "#bd0026"
+            ])
+        }
+
+        // map.setPaintProperty(layer.value, 'fill-color', color);
+    });
+        swatches.appendChild(swatch);
+    });
+</script>
+
+</body>
+</html>
